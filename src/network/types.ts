@@ -1,6 +1,9 @@
+import { AxiosTransformer } from 'axios';
+
 export interface NetworkOptions {
   url: string;
   apiVersion: string;
+  transformers?: AxiosTransformer[];
 }
 
 export interface ManifestIdentifier {

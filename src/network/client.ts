@@ -15,11 +15,12 @@ export default class Client {
   private agent: AxiosInstance;
 
   constructor(options: NetworkOptions) {
-    const { url, apiVersion } = options;
+    const { url, apiVersion, transformers } = options;
 
     const baseURL = joinURL(url, apiVersion);
     const instance = Axios.create({
       baseURL,
+      transformRequest: transformers,
     });
 
     this.agent = instance;

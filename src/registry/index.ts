@@ -10,11 +10,11 @@ export default class Registry {
   private client: Client;
 
   constructor(options: RegistryOptions) {
-    const { url, apiVersion = 'v2' } = options;
+    const { url, transformers, apiVersion = 'v2' } = options;
 
     this.url = url;
     this.apiVersion = apiVersion;
-    this.client = new Client({ url, apiVersion });
+    this.client = new Client({ url, apiVersion, transformers });
   }
 
   pull(id: string | { name: string; tag: string }) {
