@@ -10,6 +10,7 @@ import Axios, { AxiosInstance } from 'axios';
 import Artifact from '../artifact';
 import endpoints from './endpoints';
 import joinURL from 'url-join';
+import identifier from '../utils/identifier';
 
 export default class Client {
   private agent: AxiosInstance;
@@ -63,5 +64,52 @@ export default class Client {
     }
 
     return new Artifact({ manifest });
+  }
+
+  async pushBlob(name: string, blob: Buffer) {
+    const digest = identifier.digest(blob);
+    const response = await this.agent.post<null>(
+      endpoints.pushBlob({ name, digest }),
+      blob,
+      {
+        headers: {
+          'Content-Length': blob.length,
+          'Content-Type': 'application/octet-stream',
+        },
+      }
+    );
+
+    const location: string | undefined = response.headers['Location'];
+    return location;
+  }
+
+  async mountBlob(options: {
+    name: string;
+    digest: string;
+    repository: string;
+  }) {
+    const response = await this.agent.post<null>(endpoints.mountBlob(options));
+
+    const location: string | undefined = response.headers['Location'];
+    return location;
+  }
+
+  async pushManifest(
+    identifier: ManifestIdentifier,
+    manifest: ArtifactManifest
+  ) {
+    const content = Buffer.from(JSON.stringify(manifest));
+    const response = await this.agent.post(
+      endpoints.pushManifest(identifier),
+      content,
+      {
+        headers: {
+          'Content-Type': 'application/vnd.oci.image.manifest.v1+json',
+        },
+      }
+    );
+
+    const location: string | undefined = response.headers['Location'];
+    return location;
   }
 }

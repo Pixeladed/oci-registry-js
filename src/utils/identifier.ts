@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export interface ArtifactIdentifier {
   name: string;
   tag: string;
@@ -17,4 +19,14 @@ const validate = (identifier: ArtifactIdentifier) => {
   return validName;
 };
 
-export default { parse, validate };
+const digest = (blob: Buffer) => {
+  const algorithm = 'sha256';
+  const hash = crypto
+    .createHash(algorithm)
+    .update(blob)
+    .digest();
+  const digest = `${algorithm}:${hash}`;
+  return digest;
+};
+
+export default { parse, validate, digest };
