@@ -45,7 +45,8 @@ export default class Client {
 
   async fetchBlob(identifier: BlobIdentifier) {
     const response = await this.agent.get<Buffer>(
-      endpoints.pullBlob(identifier)
+      endpoints.pullBlob(identifier),
+      { responseType: 'arraybuffer' }
     );
 
     return response.data;
