@@ -6,7 +6,7 @@ export interface RegistryOptions {
   transformers?: AxiosTransformer[];
 }
 
-export type IdentifierParam = string | { name: string; tag: string };
+export type IdentifierParam = string | { name: string; reference: string };
 
 export type ArtifactDataSource =
   | {

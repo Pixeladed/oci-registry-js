@@ -7,7 +7,6 @@ import {
 } from './types';
 import Axios, { AxiosInstance } from 'axios';
 
-import Artifact from '../artifact';
 import endpoints from './endpoints';
 import joinURL from 'url-join';
 import identifier from '../utils/identifier';
@@ -61,10 +60,10 @@ export default class Client {
         digest: blobDigest,
       });
 
-      return new Artifact({ manifest, blob });
+      return { manifest, blob };
     }
 
-    return new Artifact({ manifest });
+    return { manifest };
   }
 
   async pushBlob(name: string, blob: Buffer) {

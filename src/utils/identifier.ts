@@ -2,19 +2,19 @@ import crypto from 'crypto';
 
 export interface ArtifactIdentifier {
   name: string;
-  tag: string;
+  reference: string;
 }
 
 const deconstruct = (identifier: string): ArtifactIdentifier => {
-  const [name, tag] = identifier.split(':');
-  return { name, tag };
+  const [name, reference] = identifier.split(':');
+  return { name, reference };
 };
 
 const parse = (identifier: string | ArtifactIdentifier) => {
   if (
     typeof identifier === 'object' &&
     'name' in identifier &&
-    'tag' in identifier
+    'reference' in identifier
   ) {
     return identifier;
   } else {

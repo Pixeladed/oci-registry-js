@@ -3,6 +3,7 @@ import { InvalidIdentifierError } from '../errors';
 import { ArtifactDataSource, IdentifierParam, RegistryOptions } from './types';
 import identifier from '../utils/identifier';
 import fs from 'fs';
+import Artifact from '../artifact';
 
 export default class Registry {
   url: string;
@@ -19,16 +20,21 @@ export default class Registry {
   }
 
   async pull(id: IdentifierParam) {
-    const { name, tag } = identifier.parse(id);
+    const { name, reference } = identifier.parse(id);
 
-    const isValidIdentifier = identifier.validate({ name, tag });
+    const isValidIdentifier = identifier.validate({ name, reference });
     if (!isValidIdentifier) {
       throw new InvalidIdentifierError(
-        `Invalid identifier provided: ${name}:${tag}`
+        `Invalid identifier provided: ${name}:${reference}`
       );
     }
 
-    return this.client.fetchArtifact({ name, reference: tag });
+    const { manifest, blob } = await this.client.fetchArtifact({
+      name,
+      reference: reference,
+    });
+
+    return new Artifact({ name, reference, manifest, blob });
   }
 
   async push(
@@ -36,7 +42,7 @@ export default class Registry {
     manifest: ArtifactManifest,
     data: ArtifactDataSource
   ) {
-    const { name, tag } = identifier.parse(id);
+    const { name, reference } = identifier.parse(id);
 
     let blob: Buffer;
     if (data.type === 'path') {
@@ -45,12 +51,11 @@ export default class Registry {
       blob = data.buffer;
     }
 
-    const manifestLocation = await this.client.pushManifest(
-      { name, reference: tag },
-      manifest
-    );
-    const blobLocation = await this.client.pushBlob(name, blob);
+    await Promise.all([
+      this.client.pushManifest({ name, reference }, manifest),
+      this.client.pushBlob(name, blob),
+    ]);
 
-    return { manifestLocation, blobLocation };
+    return new Artifact({ name, reference, manifest, blob });
   }
 }
