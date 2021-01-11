@@ -7,7 +7,7 @@ import fs from 'fs';
 import { LocalLayer } from '../artifact/types';
 import layer from '../utils/layer';
 
-export default class Registry {
+export class Registry {
   url: string;
   apiVersion: string;
 

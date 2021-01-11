@@ -15,7 +15,11 @@ const create = async (name: string, layerArchivePaths: string[]) => {
 };
 
 const detectMediaType = (path: string) => {
-  if (/\.tar\.tz$/.test(path) || /\.tgz$/.test(path)) {
+  if (
+    /\.tar\.tz$/.test(path) ||
+    /\.tgz$/.test(path) ||
+    /\.tar\.gzip$/.test(path)
+  ) {
     return 'application/vnd.oci.image.layer.v1.tar+gzip';
   } else if (/\.tar\.zst$/.test(path)) {
     return 'application/vnd.oci.image.layer.v1.tar+zstd';
@@ -29,15 +33,17 @@ const detectMediaType = (path: string) => {
 };
 
 const getMediaTypeExtension = (mediaType: string) => {
-  switch (mediaType) {
-    case 'application/vnd.oci.image.layer.v1.tar+gzip':
-      return '.tgz';
-    case 'application/vnd.oci.image.layer.v1.tar+zstd':
-      return '.tar.zst';
-    case 'application/vnd.oci.image.layer.v1.tar':
-      return '.tar';
-    default:
-      throw new Error('Invalid media type');
+  if (
+    mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip' ||
+    mediaType === 'application/vnd.docker.image.rootfs.diff.tar.gzip'
+  ) {
+    return '.tgz';
+  } else if (mediaType === 'application/vnd.oci.image.layer.v1.tar+zstd') {
+    return '.tar.zst';
+  } else if (mediaType === 'application/vnd.oci.image.layer.v1.tar') {
+    return '.tar';
+  } else {
+    throw new Error('Invalid media type');
   }
 };
 
