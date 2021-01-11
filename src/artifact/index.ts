@@ -1,17 +1,17 @@
 import { ArtifactManifest } from '../network';
-import { ArtifactLayer } from './types';
+import { LocalLayer } from './types';
 
 export default class Artifact {
   name: string;
   reference: string;
   manifest: ArtifactManifest;
-  layers: ArtifactLayer[];
+  layers: LocalLayer[];
 
   constructor(content: {
     name: string;
     reference: string;
     manifest: ArtifactManifest;
-    layers: ArtifactLayer[];
+    layers: LocalLayer[];
   }) {
     this.name = content.name;
     this.reference = content.reference;

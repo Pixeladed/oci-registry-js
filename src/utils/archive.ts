@@ -28,4 +28,17 @@ const detectMediaType = (path: string) => {
   }
 };
 
-export default { create, detectMediaType };
+const getMediaTypeExtension = (mediaType: string) => {
+  switch (mediaType) {
+    case 'application/vnd.oci.image.layer.v1.tar+gzip':
+      return '.tgz';
+    case 'application/vnd.oci.image.layer.v1.tar+zstd':
+      return '.tar.zst';
+    case 'application/vnd.oci.image.layer.v1.tar':
+      return '.tar';
+    default:
+      throw new Error('Invalid media type');
+  }
+};
+
+export default { create, detectMediaType, getMediaTypeExtension };

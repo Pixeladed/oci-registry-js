@@ -1,5 +1,6 @@
 import { OCIDescriptor } from '../network';
 
-export interface ArtifactLayer extends OCIDescriptor {
+export interface LocalLayer extends OCIDescriptor {
   path: string;
+  buffer?: Buffer;
 }

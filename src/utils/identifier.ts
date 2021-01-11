@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { InvalidIdentifierError } from '../errors';
 
 export interface ArtifactIdentifier {
   name: string;
@@ -11,15 +12,26 @@ const deconstruct = (identifier: string): ArtifactIdentifier => {
 };
 
 const parse = (identifier: string | ArtifactIdentifier) => {
+  let result: ArtifactIdentifier;
+
   if (
     typeof identifier === 'object' &&
     'name' in identifier &&
     'reference' in identifier
   ) {
-    return identifier;
+    result = identifier;
   } else {
-    return deconstruct(identifier);
+    result = deconstruct(identifier);
   }
+
+  const isValidIdentifier = validate(result);
+  if (!isValidIdentifier) {
+    throw new InvalidIdentifierError(
+      `Invalid identifier provided: ${result.name}:${result.reference}`
+    );
+  }
+
+  return result;
 };
 
 const validate = (identifier: ArtifactIdentifier) => {

@@ -1,12 +1,11 @@
 import { ArtifactManifest, Client, OCIDescriptor } from '../network';
-import { InvalidIdentifierError } from '../errors';
 import { IdentifierParam, RegistryOptions } from './types';
 import identifier from '../utils/identifier';
 import Artifact from '../artifact';
-import storage from '../utils/storage';
 import archive from '../utils/archive';
 import fs from 'fs';
-import { ArtifactLayer } from '../artifact/types';
+import { LocalLayer } from '../artifact/types';
+import layer from '../utils/layer';
 
 export default class Registry {
   url: string;
@@ -25,26 +24,11 @@ export default class Registry {
   async pull(id: IdentifierParam) {
     const { name, reference } = identifier.parse(id);
 
-    const isValidIdentifier = identifier.validate({ name, reference });
-    if (!isValidIdentifier) {
-      throw new InvalidIdentifierError(
-        `Invalid identifier provided: ${name}:${reference}`
-      );
-    }
-
     const manifest = await this.client.fetchManifest({ name, reference });
     const layers = await Promise.all(
-      manifest.layers.map(async layer => {
-        const buffer = await this.client.fetchBlob({
-          name,
-          digest: layer.digest,
-        });
-        const path = await storage.write(
-          identifier.getLayerId({ name, digest: layer.digest }),
-          buffer
-        );
-        return { ...layer, path };
-      })
+      manifest.layers.map(descriptor =>
+        layer.fromDescriptor(name, descriptor, this.client)
+      )
     );
 
     return new Artifact({ name, reference, manifest, layers });
@@ -59,7 +43,7 @@ export default class Registry {
     const layers = await Promise.all(
       archiveLayerPaths.map(
         layerPath =>
-          new Promise<ArtifactLayer>((resolve, reject) => {
+          new Promise<LocalLayer>((resolve, reject) => {
             fs.readFile(layerPath, async (error, data) => {
               if (error) {
                 return reject(error);
