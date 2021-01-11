@@ -124,10 +124,8 @@ export default class Client {
     await this.agent.delete<null>(endpoints.deleteTag(identifier));
   }
 
-  async deleteManifest(name: string, manifest: ArtifactManifest) {
-    await this.agent.delete<null>(
-      endpoints.deleteManifest({ name, digest: manifest.config.digest })
-    );
+  async deleteManifest(identifier: { name: string; digest: string }) {
+    await this.agent.delete<null>(endpoints.deleteManifest(identifier));
   }
 
   async deleteBlob(identifier: { name: string; digest: string }) {

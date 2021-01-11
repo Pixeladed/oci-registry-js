@@ -31,11 +31,14 @@ const validate = (identifier: ArtifactIdentifier) => {
   return validName;
 };
 
-const digest = (blob: Buffer) => {
+const digest = (content: Buffer | object) => {
+  const data = Buffer.isBuffer(content)
+    ? content
+    : Buffer.from(JSON.stringify(content));
   const algorithm = 'sha256';
   const hash = crypto
     .createHash(algorithm)
-    .update(blob)
+    .update(data)
     .digest();
   const digest = `${algorithm}:${hash}`;
   return digest;

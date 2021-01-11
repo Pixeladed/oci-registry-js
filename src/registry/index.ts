@@ -58,4 +58,33 @@ export default class Registry {
 
     return new Artifact({ name, reference, manifest, blob });
   }
+
+  async pullTags(name: string) {
+    return this.client.fetchTags(name);
+  }
+
+  async delete(options: IdentifierParam | Artifact) {
+    let artifact: Artifact;
+
+    if (options instanceof Artifact && options.blob) {
+      artifact = options;
+    } else {
+      artifact = await this.pull(options);
+    }
+
+    if (!artifact.blob) {
+      throw new Error('This image has no blob');
+    }
+
+    const manifestDigest = identifier.digest(artifact.manifest);
+    const blobDigest = identifier.digest(artifact.blob);
+
+    await Promise.all([
+      this.client.deleteManifest({
+        name: artifact.name,
+        digest: manifestDigest,
+      }),
+      this.client.deleteBlob({ name: artifact.name, digest: blobDigest }),
+    ]);
+  }
 }
