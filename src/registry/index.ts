@@ -29,9 +29,10 @@ export default class Registry {
       );
     }
 
-    const { manifest, blob } = await this.client.fetchArtifact({
+    const manifest = await this.client.fetchManifest({ name, reference });
+    const blob = await this.client.fetchBlob({
       name,
-      reference: reference,
+      digest: manifest.config.digest,
     });
 
     return new Artifact({ name, reference, manifest, blob });

@@ -4,13 +4,13 @@ export default class Artifact {
   name: string;
   reference: string;
   manifest: ArtifactManifest;
-  blob?: Buffer;
+  blob: Buffer;
 
   constructor(content: {
     name: string;
     reference: string;
     manifest: ArtifactManifest;
-    blob?: Buffer;
+    blob: Buffer;
   }) {
     this.name = content.name;
     this.reference = content.reference;

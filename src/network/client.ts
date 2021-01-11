@@ -31,15 +31,12 @@ export default class Client {
       endpoints.pullManifest(identifier),
       {
         headers: {
-          Accept: 'application/json',
+          Accept: 'application/vnd.docker.distribution.manifest.v2+json',
         },
       }
     );
 
-    return {
-      manifest: response.data,
-      blobDigest: response.headers['docker-content-digest'],
-    };
+    return response.data;
   }
 
   async fetchBlob(identifier: BlobIdentifier) {
@@ -49,21 +46,6 @@ export default class Client {
     );
 
     return response.data;
-  }
-
-  async fetchArtifact(identifier: ManifestIdentifier) {
-    const { manifest, blobDigest } = await this.fetchManifest(identifier);
-
-    if (blobDigest) {
-      const blob = await this.fetchBlob({
-        name: identifier.name,
-        digest: blobDigest,
-      });
-
-      return { manifest, blob };
-    }
-
-    return { manifest };
   }
 
   async pushBlob(name: string, blob: Buffer) {
