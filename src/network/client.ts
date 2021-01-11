@@ -1,5 +1,4 @@
 import {
-  ArtifactBlob,
   ArtifactManifest,
   ArtifactTags,
   BlobIdentifier,
@@ -45,7 +44,7 @@ export default class Client {
   }
 
   async fetchBlob(identifier: BlobIdentifier) {
-    const response = await this.agent.get<ArtifactBlob>(
+    const response = await this.agent.get<Buffer>(
       endpoints.pullBlob(identifier)
     );
 
@@ -127,7 +126,7 @@ export default class Client {
 
   async deleteManifest(name: string, manifest: ArtifactManifest) {
     await this.agent.delete<null>(
-      endpoints.deleteManifest({ name, digest: manifest.digest })
+      endpoints.deleteManifest({ name, digest: manifest.config.digest })
     );
   }
 

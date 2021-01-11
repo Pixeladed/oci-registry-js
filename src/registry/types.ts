@@ -5,3 +5,12 @@ export interface RegistryOptions {
   apiVersion?: string;
   transformers?: AxiosTransformer[];
 }
+
+export type IdentifierParam = string | { name: string; tag: string };
+
+export type ArtifactDataSource =
+  | {
+      type: 'path';
+      path: string;
+    }
+  | { type: 'buffer'; buffer: Buffer };

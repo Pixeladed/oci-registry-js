@@ -22,38 +22,27 @@ export interface ArtifactIndex {
   manifests: ArtifactManifest;
 }
 
+/**
+ * OCI Image Spec Manifest
+ */
 export interface ArtifactManifest {
-  mediaType: string;
-  size: number;
-  digest: string;
-  platform: {
-    architecture: string;
-    os: string;
-    'os.version'?: string;
-    'os.features'?: string[];
-    variant?: string;
-    features?: string[];
-  };
-  annotations: { [key: string]: string };
-}
-
-export interface ArtifactBlob {
   schemaVersion: number;
   mediaType: string;
-  config: {
-    mediaType: string;
-    size: number;
-    digest: string;
-  };
-  layers: ArtifactLayer[];
+  config: OCIDescriptor;
+  layers: OCIDescriptor[];
   annotations: { [key: string]: string };
 }
 
-export interface ArtifactLayer {
+/**
+ * OCI Image Spec Descriptor type
+ */
+export interface OCIDescriptor {
   mediaType: string;
   size: number;
   digest: string;
-  urls: string[];
+  urls?: string[];
+  annotations?: { [key: string]: string };
+  data: any;
 }
 
 export interface ArtifactTags {

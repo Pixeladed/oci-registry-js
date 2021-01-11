@@ -1,7 +1,8 @@
-import { Client } from '../network';
+import { ArtifactManifest, Client } from '../network';
 import { InvalidIdentifierError } from '../errors';
-import { RegistryOptions } from './types';
+import { ArtifactDataSource, IdentifierParam, RegistryOptions } from './types';
 import identifier from '../utils/identifier';
+import fs from 'fs';
 
 export default class Registry {
   url: string;
@@ -17,18 +18,8 @@ export default class Registry {
     this.client = new Client({ url, apiVersion, transformers });
   }
 
-  pull(id: string | { name: string; tag: string }) {
-    let name: string;
-    let tag: string;
-
-    if (typeof id === 'string') {
-      const data = identifier.parse(id);
-      name = data.name;
-      tag = data.tag;
-    } else {
-      name = id.name;
-      tag = id.tag;
-    }
+  async pull(id: IdentifierParam) {
+    const { name, tag } = identifier.parse(id);
 
     const isValidIdentifier = identifier.validate({ name, tag });
     if (!isValidIdentifier) {
@@ -38,5 +29,28 @@ export default class Registry {
     }
 
     return this.client.fetchArtifact({ name, reference: tag });
+  }
+
+  async push(
+    id: IdentifierParam,
+    manifest: ArtifactManifest,
+    data: ArtifactDataSource
+  ) {
+    const { name, tag } = identifier.parse(id);
+
+    let blob: Buffer;
+    if (data.type === 'path') {
+      blob = fs.readFileSync(data.path);
+    } else {
+      blob = data.buffer;
+    }
+
+    const manifestLocation = await this.client.pushManifest(
+      { name, reference: tag },
+      manifest
+    );
+    const blobLocation = await this.client.pushBlob(name, blob);
+
+    return { manifestLocation, blobLocation };
   }
 }

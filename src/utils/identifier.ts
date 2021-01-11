@@ -5,9 +5,21 @@ export interface ArtifactIdentifier {
   tag: string;
 }
 
-const parse = (identifier: string): ArtifactIdentifier => {
+const deconstruct = (identifier: string): ArtifactIdentifier => {
   const [name, tag] = identifier.split(':');
   return { name, tag };
+};
+
+const parse = (identifier: string | ArtifactIdentifier) => {
+  if (
+    typeof identifier === 'object' &&
+    'name' in identifier &&
+    'tag' in identifier
+  ) {
+    return identifier;
+  } else {
+    return deconstruct(identifier);
+  }
 };
 
 const validate = (identifier: ArtifactIdentifier) => {
