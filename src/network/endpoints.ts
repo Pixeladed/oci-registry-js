@@ -29,10 +29,33 @@ const pushManifest = (identifier: ManifestIdentifier) => {
   return `/${name}/manifests/${reference}`;
 };
 
+const pullTags = (name: string) => {
+  return `/${name}/tags/list`;
+};
+
+const deleteTag = (options: { name: string; tag: string }) => {
+  const { name, tag } = options;
+  return `/${name}/manifests/${tag}`;
+};
+
+const deleteManifest = (options: { name: string; digest: string }) => {
+  const { name, digest } = options;
+  return `/${name}/manifests/${digest}`;
+};
+
+const deleteBlob = (options: { name: string; digest: string }) => {
+  const { name, digest } = options;
+  return `/${name}/blobs/${digest}`;
+};
+
 export default {
   pullManifest,
   pullBlob,
   pushBlob,
   mountBlob,
   pushManifest,
+  pullTags,
+  deleteTag,
+  deleteManifest,
+  deleteBlob,
 };

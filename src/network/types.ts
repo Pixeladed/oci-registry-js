@@ -55,3 +55,8 @@ export interface ArtifactLayer {
   digest: string;
   urls: string[];
 }
+
+export interface ArtifactTags {
+  name: string;
+  tags: string[];
+}

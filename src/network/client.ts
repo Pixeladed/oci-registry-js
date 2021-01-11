@@ -1,6 +1,7 @@
 import {
   ArtifactBlob,
   ArtifactManifest,
+  ArtifactTags,
   BlobIdentifier,
   ManifestIdentifier,
   NetworkOptions,
@@ -111,5 +112,26 @@ export default class Client {
 
     const location: string | undefined = response.headers['Location'];
     return location;
+  }
+
+  async fetchTags(name: string) {
+    const { data } = await this.agent.get<ArtifactTags>(
+      endpoints.pullTags(name)
+    );
+    return data.tags;
+  }
+
+  async deleteTag(identifier: { name: string; tag: string }) {
+    await this.agent.delete<null>(endpoints.deleteTag(identifier));
+  }
+
+  async deleteManifest(name: string, manifest: ArtifactManifest) {
+    await this.agent.delete<null>(
+      endpoints.deleteManifest({ name, digest: manifest.digest })
+    );
+  }
+
+  async deleteBlob(identifier: { name: string; digest: string }) {
+    await this.agent.delete<null>(endpoints.deleteBlob(identifier));
   }
 }
