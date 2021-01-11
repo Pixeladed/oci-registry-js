@@ -50,6 +50,7 @@ export default class Client {
 
   async pushBlob(name: string, blob: Buffer) {
     const digest = identifier.digest(blob);
+
     const response = await this.agent.post<null>(
       endpoints.pushBlob({ name, digest }),
       blob,

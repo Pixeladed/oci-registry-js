@@ -42,7 +42,6 @@ export interface OCIDescriptor {
   digest: string;
   urls?: string[];
   annotations?: { [key: string]: string };
-  data: any;
 }
 
 export interface ArtifactTags {

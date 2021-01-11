@@ -7,10 +7,3 @@ export interface RegistryOptions {
 }
 
 export type IdentifierParam = string | { name: string; reference: string };
-
-export type ArtifactDataSource =
-  | {
-      type: 'path';
-      path: string;
-    }
-  | { type: 'buffer'; buffer: Buffer };

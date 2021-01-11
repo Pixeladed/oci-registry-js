@@ -1,9 +1,12 @@
-import { ArtifactManifest, Client } from '../network';
+import { ArtifactManifest, Client, OCIDescriptor } from '../network';
 import { InvalidIdentifierError } from '../errors';
-import { ArtifactDataSource, IdentifierParam, RegistryOptions } from './types';
+import { IdentifierParam, RegistryOptions } from './types';
 import identifier from '../utils/identifier';
-import fs from 'fs';
 import Artifact from '../artifact';
+import storage from '../utils/storage';
+import archive from '../utils/archive';
+import fs from 'fs';
+import { ArtifactLayer } from '../artifact/types';
 
 export default class Registry {
   url: string;
@@ -30,62 +33,76 @@ export default class Registry {
     }
 
     const manifest = await this.client.fetchManifest({ name, reference });
-    const blob = await this.client.fetchBlob({
-      name,
-      digest: manifest.config.digest,
-    });
+    const layers = await Promise.all(
+      manifest.layers.map(async layer => {
+        const buffer = await this.client.fetchBlob({
+          name,
+          digest: layer.digest,
+        });
+        const path = await storage.write(
+          identifier.getLayerId({ name, digest: layer.digest }),
+          buffer
+        );
+        return { ...layer, path };
+      })
+    );
 
-    return new Artifact({ name, reference, manifest, blob });
+    return new Artifact({ name, reference, manifest, layers });
   }
 
   async push(
     id: IdentifierParam,
-    manifest: ArtifactManifest,
-    data: ArtifactDataSource
+    manifest: Omit<ArtifactManifest, 'layers'>,
+    archiveLayerPaths: string[]
   ) {
     const { name, reference } = identifier.parse(id);
+    const layers = await Promise.all(
+      archiveLayerPaths.map(
+        layerPath =>
+          new Promise<ArtifactLayer>((resolve, reject) => {
+            fs.readFile(layerPath, async (error, data) => {
+              if (error) {
+                return reject(error);
+              }
+              await this.client.pushBlob(name, data);
 
-    let blob: Buffer;
-    if (data.type === 'path') {
-      blob = fs.readFileSync(data.path);
-    } else {
-      blob = data.buffer;
-    }
+              return resolve({
+                digest: identifier.digest(data),
+                path: layerPath,
+                size: data.length,
+                mediaType: archive.detectMediaType(layerPath),
+              });
+            });
+          })
+      )
+    );
 
-    await Promise.all([
-      this.client.pushManifest({ name, reference }, manifest),
-      this.client.pushBlob(name, blob),
-    ]);
+    const manifestWithLayers: ArtifactManifest = {
+      ...manifest,
+      layers: layers.map(
+        (layer): OCIDescriptor => {
+          return {
+            digest: layer.digest,
+            mediaType: layer.mediaType,
+            size: layer.size,
+            annotations: layer.annotations,
+            urls: layer.urls,
+          };
+        }
+      ),
+    };
 
-    return new Artifact({ name, reference, manifest, blob });
+    await this.client.pushManifest({ name, reference }, manifestWithLayers);
+
+    return new Artifact({
+      name,
+      reference,
+      manifest: manifestWithLayers,
+      layers,
+    });
   }
 
   async pullTags(name: string) {
     return this.client.fetchTags(name);
-  }
-
-  async delete(options: IdentifierParam | Artifact) {
-    let artifact: Artifact;
-
-    if (options instanceof Artifact && options.blob) {
-      artifact = options;
-    } else {
-      artifact = await this.pull(options);
-    }
-
-    if (!artifact.blob) {
-      throw new Error('This image has no blob');
-    }
-
-    const manifestDigest = identifier.digest(artifact.manifest);
-    const blobDigest = identifier.digest(artifact.blob);
-
-    await Promise.all([
-      this.client.deleteManifest({
-        name: artifact.name,
-        digest: manifestDigest,
-      }),
-      this.client.deleteBlob({ name: artifact.name, digest: blobDigest }),
-    ]);
   }
 }

@@ -44,4 +44,9 @@ const digest = (content: Buffer | object) => {
   return digest;
 };
 
-export default { parse, validate, digest };
+const getLayerId = (options: { name: string; digest: string }) => {
+  const { name, digest } = options;
+  return `${name}.${digest}`;
+};
+
+export default { parse, validate, digest, getLayerId };
