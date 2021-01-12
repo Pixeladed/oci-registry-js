@@ -1,0 +1,6 @@
+__tests__
+.github
+node_modules
+src
+release.config.js
+test.js
