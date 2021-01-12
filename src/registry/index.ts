@@ -2,7 +2,7 @@ import { ArtifactManifest, Client, OCIDescriptor } from '../network';
 import { IdentifierParam, RegistryOptions } from './types';
 import identifier from '../utils/identifier';
 import Artifact from '../artifact';
-import archive from '../utils/archive';
+import mediaType from '../utils/mediaType';
 import fs from 'fs';
 import { LocalLayer } from '../artifact/types';
 import layer from '../utils/layer';
@@ -54,7 +54,7 @@ export class Registry {
                 digest: identifier.digest(data),
                 path: layerPath,
                 size: data.length,
-                mediaType: archive.detectMediaType(layerPath),
+                mediaType: mediaType.detect(layerPath),
               });
             });
           })

@@ -1,6 +1,6 @@
 import { LocalLayer } from '../artifact/types';
 import { OCIDescriptor, Client } from '../network';
-import archive from './archive';
+import mediaType from './mediaType';
 import identifier from './identifier';
 import storage from './storage';
 
@@ -17,7 +17,7 @@ const fromDescriptor = async (
   });
 
   const layerId = identifier.getLayerId({ name, digest });
-  const extension = archive.getMediaTypeExtension(descriptor.mediaType);
+  const extension = mediaType.getExtension(descriptor.mediaType);
   const filename = layerId + extension;
   const path = await storage.write(filename, buffer);
 
