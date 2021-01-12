@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Pixeladed/oci-registry-js/compare/v1.0.0...v1.1.0) (2021-01-12)
+
+
+### Features
+
+* **README:** add small readme usage example ([3115382](https://github.com/Pixeladed/oci-registry-js/commit/3115382f749bfcd05c08ba39a3481b64e34838df))
+
 # 1.0.0 (2021-01-12)
 
 
