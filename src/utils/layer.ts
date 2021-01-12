@@ -24,4 +24,14 @@ const fromDescriptor = async (
   return { ...descriptor, path };
 };
 
-export default { fromDescriptor };
+const toDescriptor = (layer: LocalLayer): OCIDescriptor => {
+  return {
+    digest: layer.digest,
+    mediaType: layer.mediaType,
+    size: layer.size,
+    annotations: layer.annotations,
+    urls: layer.urls,
+  };
+};
+
+export default { fromDescriptor, toDescriptor };

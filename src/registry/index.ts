@@ -1,11 +1,11 @@
-import { ArtifactManifest, Client, OCIDescriptor } from '../network';
+import { ArtifactManifest, Client } from '../network';
 import { IdentifierParam, RegistryOptions } from './types';
 import identifier from '../utils/identifier';
 import Artifact from '../artifact';
 import mediaType from '../utils/mediaType';
-import fs from 'fs';
 import { LocalLayer } from '../artifact/types';
 import layer from '../utils/layer';
+import storage from '../utils/storage';
 
 export class Registry {
   url: string;
@@ -41,39 +41,22 @@ export class Registry {
   ) {
     const { name, reference } = identifier.parse(id);
     const layers = await Promise.all(
-      archiveLayerPaths.map(
-        layerPath =>
-          new Promise<LocalLayer>((resolve, reject) => {
-            fs.readFile(layerPath, async (error, data) => {
-              if (error) {
-                return reject(error);
-              }
-              await this.client.pushBlob(name, data);
+      archiveLayerPaths.map<Promise<LocalLayer>>(async layerPath => {
+        const data = await storage.read(layerPath);
+        await this.client.pushBlob(name, data);
 
-              return resolve({
-                digest: identifier.digest(data),
-                path: layerPath,
-                size: data.length,
-                mediaType: mediaType.detect(layerPath),
-              });
-            });
-          })
-      )
+        return {
+          digest: identifier.digest(data),
+          path: layerPath,
+          size: data.length,
+          mediaType: mediaType.detect(layerPath),
+        };
+      })
     );
 
     const manifestWithLayers: ArtifactManifest = {
       ...manifest,
-      layers: layers.map(
-        (layer): OCIDescriptor => {
-          return {
-            digest: layer.digest,
-            mediaType: layer.mediaType,
-            size: layer.size,
-            annotations: layer.annotations,
-            urls: layer.urls,
-          };
-        }
-      ),
+      layers: layers.map(layer.toDescriptor),
     };
 
     await this.client.pushManifest({ name, reference }, manifestWithLayers);

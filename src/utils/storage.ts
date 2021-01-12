@@ -27,4 +27,13 @@ const write = async (name: string, data: Buffer) => {
   });
 };
 
-export default { getPath, write };
+const read = async (path: string) => {
+  return new Promise<Buffer>((resolve, reject) =>
+    fs.readFile(path, (error, data) => {
+      if (error) return reject(error);
+      return resolve(data);
+    })
+  );
+};
+
+export default { getPath, write, read };
