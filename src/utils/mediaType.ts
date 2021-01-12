@@ -17,7 +17,7 @@ const TYPES = [
 ];
 
 const detect = (path: string) => {
-  TYPES.forEach(type => {
+  for (const type of TYPES) {
     const tests = type.extensions.map(
       extension => new RegExp(extension.replace('.', '\\.') + '$')
     );
@@ -25,23 +25,22 @@ const detect = (path: string) => {
     if (tests.some(regex => regex.test(path))) {
       return type.name;
     }
-    return;
-  });
+  }
 
   throw new Error(`Invalid file extension for file ${path}`);
 };
 
 const getExtension = (mediaType: string) => {
-  TYPES.forEach(type => {
+  for (const type of TYPES) {
     if (
       (type.name === mediaType || type.aliases.includes(mediaType)) &&
       type.extensions.length
     ) {
       return type.extensions[0];
     }
-    return;
-  });
-  throw new Error('Invalid media type');
+  }
+
+  throw new Error(`Invalid media type ${mediaType}`);
 };
 
 export default { detect, getExtension };
