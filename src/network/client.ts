@@ -31,7 +31,8 @@ export default class Client {
       endpoints.pullManifest(identifier),
       {
         headers: {
-          Accept: 'application/vnd.docker.distribution.manifest.v2+json',
+          Accept:
+            'application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json',
         },
       }
     );
