@@ -1,8 +1,12 @@
 import { LocalLayer } from '../artifact/types';
 import { OCIDescriptor, Client } from '../network';
 import mediaType from './mediaType';
-import identifier from './identifier';
 import storage from './storage';
+
+const getLayerPath = (options: { name: string; digest: string }) => {
+  const { name, digest } = options;
+  return `images/${name}/${digest}`;
+};
 
 const fromDescriptor = async (
   name: string,
@@ -16,9 +20,9 @@ const fromDescriptor = async (
     digest,
   });
 
-  const layerId = identifier.getLayerId({ name, digest });
+  const layerPath = getLayerPath({ name, digest });
   const extension = mediaType.getExtension(descriptor.mediaType);
-  const filename = layerId + extension;
+  const filename = layerPath + extension;
   const path = await storage.write(filename, buffer);
 
   return { ...descriptor, path };

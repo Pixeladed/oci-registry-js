@@ -56,9 +56,4 @@ const digest = (content: Buffer | object) => {
   return digest;
 };
 
-const getLayerId = (options: { name: string; digest: string }) => {
-  const { name, digest } = options;
-  return `${name}.${digest}`;
-};
-
-export default { parse, validate, digest, getLayerId };
+export default { parse, validate, digest };
