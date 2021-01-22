@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/Pixeladed/oci-registry-js/compare/v1.1.0...v1.2.0) (2021-01-22)
+
+
+### Features
+
+* **artifact:** add copyTo method for artifact ([e7702b2](https://github.com/Pixeladed/oci-registry-js/commit/e7702b2109a3024cf0d70d4dc3778cc4501f67a9))
+
 # [1.1.0](https://github.com/Pixeladed/oci-registry-js/compare/v1.0.0...v1.1.0) (2021-01-12)
 
 
