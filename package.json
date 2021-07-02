@@ -46,7 +46,7 @@
     "@types/tar": "^4.0.4",
     "@types/url-join": "^4.0.0",
     "flush-promises": "^1.0.2",
-    "husky": "^4.2.5",
+    "husky": "^7.0.0",
     "semantic-release": "^17.2.3",
     "tsdx": "^0.14.1",
     "tslib": "^2.0.1",
